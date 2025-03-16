@@ -1,4 +1,5 @@
 # Module Description
+This repository contains essential Docker concepts, commands, and best practices for container management. It covers the difference between images and containers, key Docker commands, networking, volumes, and Docker Compose usage. Additionally, it includes steps for pushing images to AWS ECR and configuring a Nexus Docker repository. Best practices for optimizing security, performance, and image management are also outlined.
 
 ### Container vs Image
 A container is a running environment for an image.\
@@ -101,3 +102,17 @@ Images have their own version, identified as TAGs.
 6. Make use of "Multi-Stage Builds"
 7. Use the Least Privileged User
 8. Scan your image for security vulnerabilities
+
+## Run application on server with docker-compose
+1. Set insecure docker registry on the server: 
+    - Check the current settings: `cat /var/snap/docker/current/config/daemon.json`
+    - Edit the file: `vim /var/snap/docker/current/config/daemon.json`
+    - Add the line: `"insecure-registries": ["SERVER_IP:PORT"]`
+    - Save
+2. Restart docker daemon: `systemctl restart snap.docker.dockerd`
+3. Login to the self hosted repo to be able to pull images: `docker login -u luis SERVER_IP:PORT`
+4. It might be required to rebuild the image to add compatilibility to linux platform, if so run:
+- Build: `docker buildx build --platform linux/amd64,linux/arm64 -t SERVER_IP:PORT/my-app-docker-nexus:5.0 . --load`
+- Push the image: `docker push SERVER_IP:PORT/my-app-docker-nexus:5.0`
+- Copy the compose file in the server: `% scp docker-compose.yaml USER@SERVERIP:/USER`
+- Run the containers: `docker compose up -d`
